@@ -291,10 +291,9 @@ public class JenkinsScheduler implements Scheduler {
         LOGGER.info("Framework disconnected!");
     }
 
-    private void declineOffer(Offer offer) {
-        double rejectOfferDuration = mesosCloud.getDeclineOfferDurationDouble();
-        LOGGER.fine("Rejecting offers for " + rejectOfferDuration + " ms");
-        Filters filters = Filters.newBuilder().setRefuseSeconds(rejectOfferDuration).build();
+    private void declineOffer(Offer offer, double duration) {
+        LOGGER.fine("Rejecting offers for " + duration + " ms");
+        Filters filters = Filters.newBuilder().setRefuseSeconds(duration).build();
         driver.declineOffer(offer.getId(), filters);
     }
 
@@ -304,7 +303,7 @@ public class JenkinsScheduler implements Scheduler {
             boolean queued = offerQueue.offer(offer);
             if (!queued) {
                 LOGGER.warning("Offer queue is full: Declining offer'");
-                declineOffer(offer);
+                declineOffer(offer, MesosCloud.SHORT_DECLINE_SEC);
             }
         }
     }
@@ -321,7 +320,8 @@ public class JenkinsScheduler implements Scheduler {
                 // This prevents unnecessarily getting offers every few seconds and causing
                 // starvation when running a lot of frameworks.
                 LOGGER.fine("No slave in queue.");
-                declineOffer(offer);
+                double rejectOfferDuration = mesosCloud.getDeclineOfferDurationDouble();
+                declineOffer(offer, rejectOfferDuration);
             }
 
             boolean taskCreated = false;
