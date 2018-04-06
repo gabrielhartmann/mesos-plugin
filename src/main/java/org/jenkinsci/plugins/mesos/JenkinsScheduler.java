@@ -18,34 +18,10 @@ package org.jenkinsci.plugins.mesos;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.google.common.annotations.VisibleForTesting;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.Computer;
 import hudson.model.Node;
 import hudson.util.Secret;
-
-import java.lang.Math;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.collections4.OrderedMapIterator;
@@ -53,34 +29,22 @@ import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.mesos.MesosSchedulerDriver;
 import org.apache.mesos.Protos;
-import org.apache.mesos.Protos.NetworkInfo;
-import org.apache.mesos.Protos.Attribute;
-import org.apache.mesos.Protos.CommandInfo;
-import org.apache.mesos.Protos.ContainerInfo;
+import org.apache.mesos.Protos.*;
 import org.apache.mesos.Protos.ContainerInfo.DockerInfo;
 import org.apache.mesos.Protos.ContainerInfo.DockerInfo.Network;
 import org.apache.mesos.Protos.ContainerInfo.DockerInfo.PortMapping;
-import org.apache.mesos.Protos.Credential;
-import org.apache.mesos.Protos.ExecutorID;
-import org.apache.mesos.Protos.Filters;
-import org.apache.mesos.Protos.FrameworkID;
-import org.apache.mesos.Protos.FrameworkInfo;
-import org.apache.mesos.Protos.MasterInfo;
-import org.apache.mesos.Protos.Offer;
-import org.apache.mesos.Protos.OfferID;
-import org.apache.mesos.Protos.Parameter;
-import org.apache.mesos.Protos.Resource;
-import org.apache.mesos.Protos.SlaveID;
-import org.apache.mesos.Protos.Status;
-import org.apache.mesos.Protos.TaskID;
-import org.apache.mesos.Protos.TaskInfo;
-import org.apache.mesos.Protos.TaskStatus;
-import org.apache.mesos.Protos.Value;
 import org.apache.mesos.Protos.Value.Range;
-import org.apache.mesos.Protos.Volume;
 import org.apache.mesos.Protos.Volume.Mode;
 import org.apache.mesos.Scheduler;
 import org.apache.mesos.SchedulerDriver;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JenkinsScheduler implements Scheduler {
   private static final String SLAVE_JAR_URI_SUFFIX = "jnlpJars/slave.jar";
@@ -790,7 +754,7 @@ public class JenkinsScheduler implements Scheduler {
                           .setContainerPort(portMapping.getContainerPort()) //
                           .setProtocol(portMapping.getProtocol());
 
-                  Long portToUse = portMapping.getHostPort() == null ? iterator.next() : portMapping.getHostPort();
+                  Long portToUse = portMapping.getHostPort() == null ? iterator.next() : Long.valueOf(portMapping.getHostPort());
 
                   portMappingBuilder.setHostPort(portToUse.intValue());
 
