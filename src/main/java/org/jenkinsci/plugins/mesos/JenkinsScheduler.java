@@ -308,7 +308,8 @@ public class JenkinsScheduler implements Scheduler {
         }
     }
 
-    private void processOffers() {
+    @VisibleForTesting
+    void processOffers() {
         List<Offer> offers = offerQueue.takeAll();
         LOGGER.fine("Processing offers " + offers.size());
         reArrangeOffersBasedOnAffinity(offers);
@@ -322,6 +323,7 @@ public class JenkinsScheduler implements Scheduler {
                 LOGGER.fine("No slave in queue.");
                 double rejectOfferDuration = mesosCloud.getDeclineOfferDurationDouble();
                 declineOffer(offer, rejectOfferDuration);
+                continue;
             }
 
             boolean taskCreated = false;
@@ -363,7 +365,6 @@ public class JenkinsScheduler implements Scheduler {
         for (Request request: requests) {
             unmatchedLabels.add(request.request.slaveInfo.getLabelString());
         }
-
     }
 
     /**
@@ -933,6 +934,7 @@ public class JenkinsScheduler implements Scheduler {
     @Override
     public void offerRescinded(SchedulerDriver driver, OfferID offerId) {
         LOGGER.info("Rescinded offer " + offerId);
+        offerQueue.remove(offerId);
     }
 
     @Override

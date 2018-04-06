@@ -173,8 +173,10 @@ public class JenkinsSchedulerTest {
         Mockito.when(jenkins.getQueue()).thenReturn(queue);
 
         SchedulerDriver driver = Mockito.mock(SchedulerDriver.class);
+        jenkinsScheduler.setDriver(driver);
         Mockito.when(mesosCloud.getDeclineOfferDurationDouble()).thenReturn((double) 120000);
         jenkinsScheduler.resourceOffers(driver, offers);
+        jenkinsScheduler.processOffers();
         Mockito.verify(driver, Mockito.never()).declineOffer(offer.getId());
         Mockito.verify(driver).declineOffer(offer.getId(), Protos.Filters.newBuilder().setRefuseSeconds(120000).build());
     }
@@ -189,8 +191,10 @@ public class JenkinsSchedulerTest {
         offers.add(offer);
 
         SchedulerDriver driver = Mockito.mock(SchedulerDriver.class);
+        jenkinsScheduler.setDriver(driver);
         Mockito.when(mesosCloud.getDeclineOfferDurationDouble()).thenReturn((double) 120000);
         jenkinsScheduler.resourceOffers(driver, offers);
+        jenkinsScheduler.processOffers();
         Mockito.verify(driver).declineOffer(offer.getId());
         Mockito.verify(driver, Mockito.never()).declineOffer(offer.getId(), Protos.Filters.newBuilder().setRefuseSeconds(120000).build());
     }
@@ -210,8 +214,10 @@ public class JenkinsSchedulerTest {
         Mockito.when(mesosCloud.canProvision(null)).thenReturn(true);
 
         SchedulerDriver driver = Mockito.mock(SchedulerDriver.class);
+        jenkinsScheduler.setDriver(driver);
         Mockito.when(mesosCloud.getDeclineOfferDurationDouble()).thenReturn((double) 120000);
         jenkinsScheduler.resourceOffers(driver, offers);
+        jenkinsScheduler.processOffers();
         Mockito.verify(driver).declineOffer(offer.getId());
         Mockito.verify(driver, Mockito.never()).declineOffer(offer.getId(), Protos.Filters.newBuilder().setRefuseSeconds(120000).build());
     }
@@ -244,6 +250,7 @@ public class JenkinsSchedulerTest {
         jenkinsScheduler.setDriver(driver);
 
         jenkinsScheduler.resourceOffers(driver, offers);
+        jenkinsScheduler.processOffers();
 
         Mockito.verify(driver, never()).declineOffer(matchingOffer.getId());
         Mockito.verify(driver).launchTasks(eq(matchingOffer.getId()), anyListOf(Protos.TaskInfo.class), eq(Protos.Filters.newBuilder().setRefuseSeconds(1).build()));
@@ -280,6 +287,7 @@ public class JenkinsSchedulerTest {
 
         // test it
         jenkinsScheduler.resourceOffers(driver, offers);
+        jenkinsScheduler.processOffers();
 
         // verify it
         Mockito.verify(driver, never()).declineOffer(matchingOffer.getId());
@@ -314,6 +322,7 @@ public class JenkinsSchedulerTest {
 
         // test it
         jenkinsScheduler.resourceOffers(driver, offers);
+        jenkinsScheduler.processOffers();
 
         // verify it
         // make sure it does not call "matches()" and gets declined because of a non-matching offer
